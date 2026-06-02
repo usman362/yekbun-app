@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { plans, zerPackages } from "@/data/mock"; // static product data — backend wiring deferred
 import {
   usePartnerShops,
   useLandingArtists,
@@ -23,6 +22,7 @@ import {
   useLandingPollsRich,
   useLandingFeedRich,
 } from "@/hooks/use-landing";
+import { usePlans, useZerPackages } from "@/hooks/use-zercash";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,9 @@ export default function Landing() {
   const artists = useLandingArtists();
   const polls = useLandingPollsRich();
   const feedPosts = useLandingFeedRich();
+  // Zercash catalogue — backend products with mock fallback. Same shape, same JSX.
+  const plans = usePlans();
+  const zerPackages = useZerPackages();
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">

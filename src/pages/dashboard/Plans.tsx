@@ -2,7 +2,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { plans } from "@/data/mock";
+import { usePlans } from "@/hooks/use-zercash";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { CheckCircle2, Star, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ export default function DashboardPlans() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
   // Same shape as the old `userProfile` mock — JSX is untouched.
   const userProfile = useCurrentUser();
+  // Same shape as the old `plans` mock — JSX unchanged.
+  const plans = usePlans();
 
   return (
     <DashboardLayout>

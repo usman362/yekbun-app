@@ -9,10 +9,17 @@ import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose
 } from "@/components/ui/drawer";
 import {
-  partnerShops, plans, playlistUpgrades,
-  streamingUpgrades, zerPackages, businessPackages, billingHistory, transactions
+  partnerShops,
+  billingHistory, transactions
 } from "@/data/mock";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import {
+  usePlans,
+  usePlaylistUpgrades,
+  useStreamingUpgrades,
+  useZerPackages,
+  useBusinessPackages,
+} from "@/hooks/use-zercash";
 import {
   Star, ShoppingCart, Trash2, Check, Plus, Minus, Heart,
   Wallet, Coins, TrendingUp, Clock, CreditCard, Landmark, Store,
@@ -96,6 +103,13 @@ export default function DashboardOverview() {
   const isMobile = useIsMobile();
   // Identical shape to the old `userProfile` mock — keeps JSX (avatar, plan, balances) intact.
   const userProfile = useCurrentUser();
+  // Same shape as the legacy mocks — JSX (plan grid, playlist/streaming/zer/business
+  // cards, etc.) is unchanged. Each hook backend-first with mock fallback.
+  const plans = usePlans();
+  const playlistUpgrades = usePlaylistUpgrades();
+  const streamingUpgrades = useStreamingUpgrades();
+  const zerPackages = useZerPackages();
+  const businessPackages = useBusinessPackages();
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {

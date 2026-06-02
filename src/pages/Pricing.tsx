@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { plans } from "@/data/mock";
+import { usePlans } from "@/hooks/use-zercash";
 import { Check, Zap, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { motion } from "framer-motion";
 
 export default function PricingPage() {
   const [yearly, setYearly] = useState(false);
+  // Same shape as the legacy `plans` mock — JSX below is unchanged.
+  const plans = usePlans();
 
   return (
     <div className="min-h-screen bg-background">
