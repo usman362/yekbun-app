@@ -103,14 +103,24 @@ function titleCase(s?: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 }
 
-/** Resolve the avatar URL — backend stores a relative path under `images/user/...`. */
+/**
+ * Resolve the avatar URL — backend stores a relative path under `images/user/...`.
+ *
+ * Laravel serves uploaded media from `/storage/<path>` (the symlinked public storage),
+ * NOT from the API root. Without the `/storage/` prefix the URL 404s and the UI falls
+ * back to initials. We also accept already-absolute URLs (from CDN seeding) and skip
+ * the prefix when the path itself already starts with `storage/`.
+ */
 function resolveAvatar(image?: string): string {
   if (!image) return FALLBACK.avatar;
   if (image.startsWith("http")) return image;
-  // Strip any leading slash so the base URL doesn't double up.
+
   const base = (import.meta.env.VITE_API_URL ?? "").replace(/\/api\/?$/, "");
   const path = image.replace(/^\/+/, "");
-  return base ? `${base}/${path}` : `/${path}`;
+  // Don't double-prefix if the stored path already includes `storage/`.
+  const withStorage = path.startsWith("storage/") ? path : `storage/${path}`;
+
+  return base ? `${base}/${withStorage}` : `/${withStorage}`;
 }
 
 export function useCurrentUser(): CurrentUserProfile {

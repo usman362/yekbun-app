@@ -42,13 +42,20 @@ async function safeGet<T>(path: string): Promise<T[]> {
   }
 }
 
-/** Resolve a backend storage path to a fully-qualified URL the browser can load. */
+/**
+ * Resolve a backend storage path to a fully-qualified URL the browser can load.
+ *
+ * Laravel-hosted media is exposed under `/storage/<path>` (public storage symlink).
+ * Without the `/storage/` prefix the URL 404s and the UI falls back to mock images.
+ * Absolute URLs (CDN-seeded) and already-prefixed paths are passed through unchanged.
+ */
 function resolveAsset(path?: string, fallback?: string): string {
   if (!path) return fallback ?? "";
   if (path.startsWith("http")) return path;
   const base = (import.meta.env.VITE_API_URL ?? "").replace(/\/api\/?$/, "");
   const clean = path.replace(/^\/+/, "");
-  return base ? `${base}/${clean}` : `/${clean}`;
+  const withStorage = clean.startsWith("storage/") ? clean : `storage/${clean}`;
+  return base ? `${base}/${withStorage}` : `/${withStorage}`;
 }
 
 /** Format a raw number into "1.2M" / "850K" / "230" — matches the mock UI cadence. */
