@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { TOKEN_KEY } from "@/lib/api";
 
 const navLinks = [
   { name: "Pricing",         href: "/pricing",          icon: "◈" },
@@ -17,6 +18,12 @@ export function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  // Auth check — token presence flips the "Log in" CTA to "Dashboard". Read directly
+  // from localStorage (rather than via a React Query hook) so the button reflects
+  // state on first render with no flicker.
+  const isAuthed = typeof window !== "undefined" && !!localStorage.getItem(TOKEN_KEY);
+  const ctaText = isAuthed ? "Dashboard" : "Log in";
+  const ctaHref = isAuthed ? "/dashboard" : "/login";
 
   const scrollMap: Record<string, string> = {
     "/upgrade-account": "pricing",
@@ -111,8 +118,8 @@ export function Navbar() {
               <Moon className="absolute h-3.5 w-3.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </button>
 
-            {/* Log in */}
-            <Link to="/login">
+            {/* Log in / Dashboard — destination + label flip based on auth state. */}
+            <Link to={ctaHref}>
               <motion.button
                 whileHover={{ scale: 1.04, y: -1 }}
                 whileTap={{ scale: 0.97 }}
@@ -122,7 +129,7 @@ export function Navbar() {
                   boxShadow: "0 4px 18px rgba(245,197,24,0.35)",
                 }}
               >
-                Log in
+                {ctaText}
               </motion.button>
             </Link>
           </motion.div>
@@ -160,10 +167,10 @@ export function Navbar() {
                     </Link>
                   ))}
                   <div className="h-px bg-white/10 my-3" />
-                  <Link to="/login">
+                  <Link to={ctaHref}>
                     <Button className="w-full h-11 text-base font-bold text-black"
                       style={{ background: "linear-gradient(135deg, #f5c518, #f97316)" }}>
-                      Log in
+                      {ctaText}
                     </Button>
                   </Link>
                   <Link to="/dashboard">

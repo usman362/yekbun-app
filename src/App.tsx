@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Public Pages
 import Landing from "@/pages/Landing";
@@ -60,15 +61,16 @@ const App = () => (
             <Route path="/terms" element={<PlaceholderPage title="Terms of Service" />} />
             <Route path="/register" element={<PlaceholderPage title="Register" />} />
 
-            {/* Dashboard Routes */}
-            <Route path="/dashboard" element={<DashboardOverview />} />
-            <Route path="/dashboard/profile" element={<DashboardProfile />} />
-            <Route path="/dashboard/plans" element={<DashboardPlans />} />
-            <Route path="/dashboard/wallet" element={<DashboardWallet />} />
-            <Route path="/dashboard/partner-shops" element={<DashboardShops />} />
-            <Route path="/dashboard/playlists" element={<DashboardPlaylists />} />
-            <Route path="/dashboard/streaming" element={<DashboardStreaming />} />
-            <Route path="/dashboard/settings" element={<DashboardSettings />} />
+            {/* Dashboard Routes — auth required. ProtectedRoute bounces unauthed
+                visitors to /login while preserving the deep-link destination. */}
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
+            <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
+            <Route path="/dashboard/plans" element={<ProtectedRoute><DashboardPlans /></ProtectedRoute>} />
+            <Route path="/dashboard/wallet" element={<ProtectedRoute><DashboardWallet /></ProtectedRoute>} />
+            <Route path="/dashboard/partner-shops" element={<ProtectedRoute><DashboardShops /></ProtectedRoute>} />
+            <Route path="/dashboard/playlists" element={<ProtectedRoute><DashboardPlaylists /></ProtectedRoute>} />
+            <Route path="/dashboard/streaming" element={<ProtectedRoute><DashboardStreaming /></ProtectedRoute>} />
+            <Route path="/dashboard/settings" element={<ProtectedRoute><DashboardSettings /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
