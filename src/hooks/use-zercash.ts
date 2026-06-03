@@ -39,36 +39,32 @@ function num(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/* ── Backend product shape ─────────────────────────────────────────────────── */
-
+/* ── Backend product shape ─────────────────────────────────────────────────── *
+ * Field names match the actual `zercash_products` MongoDB documents exactly —
+ * see ProductsAdminController::defaultProducts() in the backend repo. Notably:
+ *   - `zer_amount`        — price in Zêr (used by all package categories)
+ *   - `fiat_amount`       — price in EUR/USD (used by plans + zer packages)
+ *   - `songs_count`       — also stores the MINUTE count for streaming products
+ *                            (backend re-uses this field — quirky but real)
+ *   - `cashback_percent`  — cashback %age on the product
+ *   - `features`          — bullet list for plan cards
+ *   - `badge`             — plan-card chip text ("Current access" / "Manage access")
+ */
 interface BackendProduct {
   _id?: string;
   id?: string;
-  name?: string;
-  title?: string;
   category?: string;
-  tier?: string;
+  name?: string;
   description?: string;
-  helper?: string;
-  // Pricing fields — different categories use different combos.
-  price_monthly?: number | string;
-  price_yearly?: number | string;
-  zer_price?: number | string;
-  zer_cost?: number | string;
+  badge?: string;
   zer_amount?: number | string;
-  eur_price?: number | string;
-  price?: number | string;
-  // Plan-specific
+  fiat_amount?: number | string;
+  fiat_currency?: string;
+  cashback_percent?: number | string;
+  songs_count?: number | string;
   features?: string[];
-  recommended?: boolean | number;
-  // Playlist/streaming-specific
-  songs?: number;
-  minutes?: number;
-  cashback?: number;
-  popular?: boolean | number;
-  // Styling hints (optional — backend can set these if it wants control)
-  color?: string;
-  icon_color?: string;
+  status?: string;
+  sort_order?: number;
 }
 
 /**
@@ -109,17 +105,22 @@ export function usePlans() {
     if (!remote || remote.length === 0) return mockPlans;
     return remote.map((p, i): typeof mockPlans[number] => {
       const fallback = mockPlans[i % mockPlans.length];
+      // Backend stores plan price in `fiat_amount` (EUR by default). Mock has separate
+      // monthly/yearly fields — backend currently models only monthly, so we surface
+      // it as both with yearly = monthly*10 (industry-standard 2-months-free pricing).
+      const monthly = num(p.fiat_amount, fallback.priceMonthly);
       return {
         id: p.id ?? p._id ?? fallback.id,
-        name: p.name ?? p.title ?? fallback.name,
-        priceMonthly: num(p.price_monthly, fallback.priceMonthly),
-        priceYearly: num(p.price_yearly, fallback.priceYearly),
-        zerPrice: num(p.zer_price, fallback.zerPrice),
-        color: p.color ?? fallback.color,
-        iconColor: p.icon_color ?? fallback.iconColor,
+        name: p.name ?? fallback.name,
+        priceMonthly: monthly,
+        priceYearly: monthly > 0 ? Math.round(monthly * 10 * 100) / 100 : fallback.priceYearly,
+        zerPrice: num(p.zer_amount, fallback.zerPrice),
+        color: fallback.color,         // styling stays mock — backend has no color field
+        iconColor: fallback.iconColor, // same
         description: p.description ?? fallback.description,
         features: Array.isArray(p.features) && p.features.length > 0 ? p.features : fallback.features,
-        recommended: typeof p.recommended === "boolean" ? p.recommended : Boolean(p.recommended) || fallback.recommended,
+        // Mark "Educated" as recommended by default (matches the legacy mock + UI accent).
+        recommended: (p.name ?? "").toLowerCase().includes("educated") ? true : fallback.recommended,
       };
     });
   }, [remote]);
@@ -137,15 +138,18 @@ export function usePlaylistUpgrades() {
     if (!remote || remote.length === 0) return mockPlaylistUpgrades;
     return remote.map((p, i): typeof mockPlaylistUpgrades[number] => {
       const fallback = mockPlaylistUpgrades[i % mockPlaylistUpgrades.length];
+      // Derive tier from product name (e.g. "Bronze Playlist" → "Bronze").
+      const tier = (p.name ?? "").split(" ")[0] || fallback.tier;
       return {
         ...fallback,
         id: p.id ?? p._id ?? fallback.id,
-        name: p.name ?? p.title ?? fallback.name,
-        tier: p.tier ?? fallback.tier,
-        songs: num(p.songs, fallback.songs),
-        zerCost: num(p.zer_cost ?? p.zer_price, fallback.zerCost),
-        cashback: num(p.cashback, fallback.cashback),
-        popular: typeof p.popular === "boolean" ? p.popular : Boolean(p.popular) || fallback.popular,
+        name: p.name ?? fallback.name,
+        tier,
+        songs: num(p.songs_count, fallback.songs),
+        zerCost: num(p.zer_amount, fallback.zerCost),
+        cashback: num(p.cashback_percent, fallback.cashback),
+        // Mark Silver as popular by default to match the existing UI accent.
+        popular: tier.toLowerCase() === "silver" ? true : fallback.popular,
       };
     });
   }, [remote]);
@@ -163,15 +167,18 @@ export function useStreamingUpgrades() {
     if (!remote || remote.length === 0) return mockStreamingUpgrades;
     return remote.map((p, i): typeof mockStreamingUpgrades[number] => {
       const fallback = mockStreamingUpgrades[i % mockStreamingUpgrades.length];
+      // Backend re-uses `songs_count` for streaming-minute totals — quirky but
+      // consistent across the API. Derive tier from name like the playlist hook.
+      const tier = (p.name ?? "").split(" ")[0] || fallback.tier;
       return {
         ...fallback,
         id: p.id ?? p._id ?? fallback.id,
-        name: p.name ?? p.title ?? fallback.name,
-        tier: p.tier ?? fallback.tier,
-        minutes: num(p.minutes, fallback.minutes),
-        zerCost: num(p.zer_cost ?? p.zer_price, fallback.zerCost),
-        cashback: num(p.cashback, fallback.cashback),
-        popular: typeof p.popular === "boolean" ? p.popular : Boolean(p.popular) || fallback.popular,
+        name: p.name ?? fallback.name,
+        tier,
+        minutes: num(p.songs_count, fallback.minutes),
+        zerCost: num(p.zer_amount, fallback.zerCost),
+        cashback: num(p.cashback_percent, fallback.cashback),
+        popular: tier.toLowerCase() === "silver" ? true : fallback.popular,
       };
     });
   }, [remote]);
@@ -189,15 +196,15 @@ export function useZerPackages() {
     if (!remote || remote.length === 0) return mockZerPackages;
     return remote.map((p, i): typeof mockZerPackages[number] => {
       const fallback = mockZerPackages[i % mockZerPackages.length];
+      const tier = (p.name ?? "").split(" ")[0] || fallback.tier;
       return {
         ...fallback,
         id: p.id ?? p._id ?? fallback.id,
-        name: p.name ?? p.title ?? fallback.name,
-        tier: p.tier ?? fallback.tier,
+        name: p.name ?? fallback.name,
+        tier,
         zerAmount: num(p.zer_amount, fallback.zerAmount),
-        eurPrice: num(p.eur_price ?? p.price, fallback.eurPrice),
-        helper: p.helper ?? p.description ?? fallback.helper,
-        color: p.color ?? fallback.color,
+        eurPrice: num(p.fiat_amount, fallback.eurPrice),
+        helper: p.description ?? fallback.helper,
       };
     });
   }, [remote]);
@@ -215,15 +222,16 @@ export function useBusinessPackages() {
     if (!remote || remote.length === 0) return mockBusinessPackages;
     return remote.map((p, i): typeof mockBusinessPackages[number] => {
       const fallback = mockBusinessPackages[i % mockBusinessPackages.length];
+      // Tier for business is the first word too — "Titanium Pack" → "Titanium" etc.
+      const tier = (p.name ?? "").split(" ")[0] || fallback.tier;
       return {
         ...fallback,
         id: p.id ?? p._id ?? fallback.id,
-        name: p.name ?? p.title ?? fallback.name,
-        tier: p.tier ?? fallback.tier,
+        name: p.name ?? fallback.name,
+        tier,
         zerAmount: num(p.zer_amount, fallback.zerAmount),
-        eurPrice: num(p.eur_price ?? p.price, fallback.eurPrice),
-        helper: p.helper ?? p.description ?? fallback.helper,
-        color: p.color ?? fallback.color,
+        eurPrice: num(p.fiat_amount, fallback.eurPrice),
+        helper: p.description ?? fallback.helper,
       };
     });
   }, [remote]);
