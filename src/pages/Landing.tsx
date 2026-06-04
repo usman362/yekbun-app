@@ -23,6 +23,7 @@ import {
   useLandingFeedRich,
 } from "@/hooks/use-landing";
 import { usePlans, useZerPackages } from "@/hooks/use-zercash";
+import { useCmsText, useMediaSlot } from "@/hooks/use-cms";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,11 @@ export default function Landing() {
   // Zercash catalogue — backend products with mock fallback. Same shape, same JSX.
   const plans = usePlans();
   const zerPackages = useZerPackages();
+  // CMS-managed copy + media — admin can edit these from /webapp (WebApp CMS tab).
+  // Fallback strings preserve the current hardcoded UI when the API isn't reachable.
+  const heroTitle    = useCmsText("landing", "hero.title", "Çand Yekbike,");
+  const heroSubtitle = useCmsText("landing", "hero.subtitle", "Platforma Kurdî ya yekem — mûzîk, çand, civak û bazarên ortakî di yek cih de.");
+  const heroBgUrl    = useMediaSlot("landing.hero", "/images/hero-bg.mp4");
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
@@ -50,7 +56,7 @@ export default function Landing() {
         {/* ── Background video texture ── */}
         <video autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-[0.60] pointer-events-none saturate-[0.45] scale-105">
-          <source src={"/images/hero-bg.mp4"} type="video/mp4" />
+          <source src={heroBgUrl} type="video/mp4" />
         </video>
 
         {/* ── Cinematic gradient overlays — minimal, just edges ── */}
@@ -93,16 +99,16 @@ export default function Landing() {
               transition={{ duration: 0.7, ease: "easeOut" }}
               className="max-w-2xl"
             >
-              {/* Headline */}
+              {/* Headline — admin-editable via CMS Pages tab (key: hero.title) */}
               <h1 className="text-[56px] sm:text-[68px] lg:text-[76px] xl:text-[88px] font-black tracking-[-0.03em] mb-5 leading-[1.0] text-white">
-                Çand Yekbike,<br/>
+                {heroTitle}<br/>
                 <span style={{ background: "linear-gradient(135deg,#f5c518 0%,#f97316 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                   Cîhan Bigihîne.
                 </span>
               </h1>
 
               <p className="text-[17px] text-white/50 mb-10 leading-[1.7] max-w-[420px] font-light tracking-wide">
-                Platforma Kurdî ya yekem — mûzîk, çand,<br className="hidden sm:block" /> civak û bazarên ortakî di yek cih de.
+                {heroSubtitle}
               </p>
 
               {/* Store buttons — clean minimal style */}

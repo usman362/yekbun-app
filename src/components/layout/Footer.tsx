@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, Download } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCmsText } from "@/hooks/use-cms";
 
 export function Footer() {
+  // CMS-managed footer copy — admin can edit from WebApp CMS → Pages (footer.*).
+  const tagline = useCmsText("footer", "footer.tagline", "YekBûn — One nation, one heart");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
@@ -57,7 +60,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-              YekBûn Platform, developed by YekBûn.app, is an innovative platform designed for Kurdish-focused social, multimedia, cultural, and digital engagement.
+              {tagline}
             </p>
           </div>
 

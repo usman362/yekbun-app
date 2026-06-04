@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TOKEN_KEY } from "@/lib/api";
+import { useMediaSlot } from "@/hooks/use-cms";
 
 const navLinks = [
   { name: "Pricing",         href: "/pricing",          icon: "◈" },
@@ -22,6 +23,8 @@ export function Navbar() {
   // from localStorage (rather than via a React Query hook) so the button reflects
   // state on first render with no flicker.
   const isAuthed = typeof window !== "undefined" && !!localStorage.getItem(TOKEN_KEY);
+  // CMS-managed logo — admin replaces this from WebApp CMS → Media tab (slot: global.logo).
+  const logoUrl = useMediaSlot("global.logo", "/images/logo.svg");
   const ctaText = isAuthed ? "Dashboard" : "Log in";
   const ctaHref = isAuthed ? "/dashboard" : "/login";
 
@@ -53,7 +56,7 @@ export function Navbar() {
           <Link to="/" className="flex items-center shrink-0 group">
             <div className="relative">
               <img
-                src="/images/logo.svg"
+                src={logoUrl}
                 alt="YekBûn"
                 className="h-9 w-9 object-contain group-hover:scale-105 transition-transform duration-200"
               />
@@ -148,7 +151,7 @@ export function Navbar() {
               <SheetContent side="right" className="w-[280px] flex flex-col bg-zinc-950 border-white/10">
                 <SheetHeader className="text-left mb-6">
                   <SheetTitle className="flex items-center gap-2.5 text-white">
-                    <img src="/images/logo.svg" alt="Logo" className="h-8 w-8" />
+                    <img src={logoUrl} alt="Logo" className="h-8 w-8" />
                     YekBûn
                   </SheetTitle>
                 </SheetHeader>

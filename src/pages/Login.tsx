@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, KeyboardEvent, ClipboardEvent } from "reac
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useOtpSend, useOtpVerify } from "@/hooks/use-auth";
+import { useCmsText } from "@/hooks/use-cms";
 import { toast } from "sonner";
 
 /* ─── Slide animation ─────────────────────────────────────────── */
@@ -254,6 +255,13 @@ export default function LoginPage() {
   const otpVerify = useOtpVerify();
   const loading = otpSend.isPending || otpVerify.isPending;
 
+  // CMS-managed strings — admin can edit these via WebApp CMS → Pages tab (id: "login").
+  // Fallbacks preserve the original Kurdish copy when the CMS endpoint is unreachable.
+  const loginTitle  = useCmsText("login", "login.title",  "Xweş hatî 👋");
+  const loginCta    = useCmsText("login", "login.cta",    "Berdewam Bike");
+  const otpTitle    = useCmsText("login", "otp.title",    "Koda Piştrastkirinê");
+  const otpCta      = useCmsText("login", "login.cta",    "Piştrast Bike û Berdewam Bike");
+
   const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) =>
     a + "•".repeat(Math.max(b.length, 3)) + c
   );
@@ -360,7 +368,7 @@ export default function LoginPage() {
                   {/* Headline */}
                   <div className="mb-7">
                     <h1 className="text-3xl font-extrabold text-foreground tracking-tight leading-tight">
-                      Xweş hatî 👋
+                      {loginTitle}
                     </h1>
                     <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">
                       Navnîşana e-nameya xwe binivîse da ku berdewam bikî.
@@ -405,7 +413,7 @@ export default function LoginPage() {
                         background: "linear-gradient(135deg, #f5c518 0%, #e6a800 100%)",
                       }}
                     >
-                      Berdewam Bike <ArrowRight className="h-4.5 w-4.5" />
+                      {loginCta} <ArrowRight className="h-4.5 w-4.5" />
                     </motion.button>
                   </form>
 
@@ -441,7 +449,7 @@ export default function LoginPage() {
                     </div>
                     <div>
                       <h1 className="text-2xl font-extrabold text-foreground tracking-tight leading-tight">
-                        Koda Piştrastkirinê
+                        {otpTitle}
                       </h1>
                       <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
                         Koda 6-jimare ji bo{" "}
@@ -513,7 +521,7 @@ export default function LoginPage() {
                           />
                         ) : (
                           <motion.span key="label" className="flex items-center gap-2">
-                            Piştrast Bike û Berdewam Bike <ArrowRight className="h-4 w-4" />
+                            {otpCta} <ArrowRight className="h-4 w-4" />
                           </motion.span>
                         )}
                       </AnimatePresence>
