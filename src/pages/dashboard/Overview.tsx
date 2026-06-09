@@ -20,6 +20,8 @@ import {
   useZerPackages,
   useBusinessPackages,
 } from "@/hooks/use-zercash";
+import { useCheckout, type PaymentMethod } from "@/hooks/use-checkout";
+import { toast } from "sonner";
 import {
   Star, ShoppingCart, Trash2, Check, Plus, Minus, Heart,
   Wallet, Coins, TrendingUp, Clock, CreditCard, Landmark, Store,
@@ -103,6 +105,28 @@ export default function DashboardOverview() {
   const isMobile = useIsMobile();
   // Identical shape to the old `userProfile` mock — keeps JSX (avatar, plan, balances) intact.
   const userProfile = useCurrentUser();
+  const checkoutMut = useCheckout();
+
+  /** Pay button handler — POSTs the current cart to /api/checkout. */
+  const handleCheckout = async () => {
+    if (cart.length === 0 || checkoutMut.isPending) return;
+    try {
+      const result = await checkoutMut.mutateAsync({
+        items: cart.map(c => ({ product_id: c.id, qty: c.qty || 1 })),
+        payment_method: paymentMethod as PaymentMethod,
+      });
+      toast.success(
+        result.order.status === "COMPLETED"
+          ? `Order ${result.order.order_number} completed!`
+          : `Order ${result.order.order_number} placed — awaiting payment.`
+      );
+      setCart([]);
+      setCartOpen(false);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      toast.error(e.response?.data?.message ?? "Checkout failed.");
+    }
+  };
   // Same shape as the legacy mocks — JSX (plan grid, playlist/streaming/zer/business
   // cards, etc.) is unchanged. Each hook backend-first with mock fallback.
   const plans = usePlans();
@@ -311,10 +335,12 @@ export default function DashboardOverview() {
           <div className="px-5 pb-5">
             <motion.button
               whileTap={{ scale: 0.97 }}
-              className="w-full h-[52px] rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-3 bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200"
+              disabled={checkoutMut.isPending}
+              onClick={handleCheckout}
+              className="w-full h-[52px] rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-3 bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Zap className="h-5 w-5" />
-              Bidin Pêş — {cart.length} tişt
+              {checkoutMut.isPending ? "Pêvajo..." : `Bidin Pêş — ${cart.length} tişt`}
             </motion.button>
             <div className="flex items-center justify-center gap-4 mt-3">
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Shield className="h-3 w-3 text-green-500" /> SSL</span>
