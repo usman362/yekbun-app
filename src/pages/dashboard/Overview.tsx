@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/drawer";
 import {
   partnerShops,
-  billingHistory, transactions
+  transactions
 } from "@/data/mock";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
@@ -21,11 +21,12 @@ import {
   useBusinessPackages,
 } from "@/hooks/use-zercash";
 import { useCheckout, type PaymentMethod } from "@/hooks/use-checkout";
+import { useInvoices, invoiceDownloadUrl } from "@/hooks/use-invoices";
 import { toast } from "sonner";
 import {
   Star, ShoppingCart, Trash2, Check, Plus, Minus, Heart,
   Wallet, Coins, TrendingUp, Clock, CreditCard, Landmark, Store,
-  Music, Radio, Package, Briefcase, Receipt, ChevronRight,
+  Music, Radio, Package, Briefcase, Receipt, ChevronRight, Download,
   Zap, Shield, BadgeCheck, RotateCcw, X, Lock, Tag
 } from "lucide-react";
 
@@ -106,6 +107,8 @@ export default function DashboardOverview() {
   // Identical shape to the old `userProfile` mock — keeps JSX (avatar, plan, balances) intact.
   const userProfile = useCurrentUser();
   const checkoutMut = useCheckout();
+  const { data: invoiceData } = useInvoices();
+  const billingHistory = invoiceData?.rows ?? [];
 
   /** Pay button handler — POSTs the current cart to /api/checkout. */
   const handleCheckout = async () => {
@@ -867,13 +870,23 @@ export default function DashboardOverview() {
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-foreground">{bill.amount}</span>
                     <Badge className="bg-green-500/15 text-green-500 border-green-500/30 text-[10px]">✓</Badge>
+                    {/* Download invoice PDF (public link, no token) — testing button */}
+                    <a
+                      href={invoiceDownloadUrl(bill.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Download invoice"
+                      className="ml-auto sm:ml-1 inline-flex items-center justify-center h-7 w-7 rounded-lg bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                    </a>
                   </div>
                 </motion.div>
               ))}
             </div>
             <div className="px-5 py-4 border-t border-border/40 bg-secondary/50 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">Bi tevahî xerckirî</p>
-              <p className="font-bold text-foreground">€{(49.99 + 9.99).toFixed(2)} + 850 Zer</p>
+              <p className="font-bold text-foreground">€{(invoiceData?.totalFiat ?? 0).toFixed(2)} + {invoiceData?.totalZer ?? 0} Zer</p>
             </div>
           </div>
         </motion.section>
