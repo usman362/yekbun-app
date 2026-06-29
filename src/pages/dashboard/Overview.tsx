@@ -109,6 +109,14 @@ export default function DashboardOverview() {
   const checkoutMut = useCheckout();
   const { data: invoiceData } = useInvoices();
   const billingHistory = invoiceData?.rows ?? [];
+  const invoiceTotalLabel = (() => {
+    const f = invoiceData?.totalFiat ?? 0;
+    const z = invoiceData?.totalZer ?? 0;
+    const parts = [];
+    if (f > 0) parts.push(`€${f.toFixed(2)}`);
+    if (z > 0) parts.push(`${z} Zer`);
+    return parts.join(" + ") || "€0.00";
+  })();
 
   /** Pay button handler — POSTs the current cart to /api/checkout. */
   const handleCheckout = async () => {
@@ -886,7 +894,7 @@ export default function DashboardOverview() {
             </div>
             <div className="px-5 py-4 border-t border-border/40 bg-secondary/50 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">Bi tevahî xerckirî</p>
-              <p className="font-bold text-foreground">€{(invoiceData?.totalFiat ?? 0).toFixed(2)} + {invoiceData?.totalZer ?? 0} Zer</p>
+              <p className="font-bold text-foreground">{invoiceTotalLabel}</p>
             </div>
           </div>
         </motion.section>
