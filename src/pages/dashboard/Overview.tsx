@@ -781,7 +781,7 @@ export default function DashboardOverview() {
                 <motion.div key={pkg.id} {...fade(i)}>
                   <div className="rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex flex-col">
                     <div className="overflow-hidden">
-                      <img src={`/images/cards/${svgMap[pkg.tier]}`} alt={pkg.name} className="w-full block" style={{ aspectRatio: "282/188", objectFit: "fill" }} />
+                      <img src={`/images/cards/${svgMap[pkg.tier] ?? "Standard_-_Bronze_Packges.svg"}`} alt={pkg.name} className="w-full block" style={{ aspectRatio: "282/188", objectFit: "fill" }} />
                     </div>
                     <div className="px-4 pt-4 pb-2">
                       <h3 className="font-extrabold text-lg text-foreground">{pkg.name}</h3>
@@ -817,12 +817,12 @@ export default function DashboardOverview() {
           <div className="grid sm:grid-cols-3 gap-5">
             {businessPackages.map((pkg, i) => {
               const inCart = isInCart(pkg.id);
-              const svgMap: Record<string, string> = { Titanium: "Standard_-_SliverPackges.svg", Platinum: "Standard_-_GoldPackges.svg", Rhodium: "Standard_-_Bronze_Packges.svg" };
+              const svgMap: Record<string, string> = { Titanium: "Standard_-_SliverPackges.svg", Platinum: "Standard_-_GoldPackges.svg", Diamond: "Standard_-_Bronze_Packges.svg" };
               return (
                 <motion.div key={pkg.id} {...fade(i)}>
                   <div className="rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex flex-col">
                     <div className="overflow-hidden">
-                      <img src={`/images/cards/${svgMap[pkg.tier]}`} alt={pkg.name} className="w-full block" style={{ aspectRatio: "282/188", objectFit: "fill" }} />
+                      <img src={`/images/cards/${svgMap[pkg.tier] ?? "Standard_-_Bronze_Packges.svg"}`} alt={pkg.name} className="w-full block" style={{ aspectRatio: "282/188", objectFit: "fill" }} />
                     </div>
                     <div className="px-4 pt-4 pb-2">
                       <h3 className="font-extrabold text-lg text-foreground">{pkg.name}</h3>
