@@ -147,13 +147,13 @@ export default function DashboardOverview() {
   const streamingUpgrades = useStreamingUpgrades();
   const zerPackages = useZerPackages();
   const businessPackages = useBusinessPackages();
-  const cashbackRulesQ = useCashbackRules();
+  const cashbackRules = useCashbackRules(); // hook returns the rules array directly
 
   // Mirror the backend's BuildsZercashCartLines cashback logic so the cart preview
   // matches exactly what checkout will credit (fixed vs percent, min-purchase).
   const cbRuleForType = (type: CartItem["type"]) => {
     const id = ({ playlist: "playlist", stream: "streaming", plan: "upgrade", zer: "zer_package", business: "zer_package" } as Record<string, string>)[type];
-    return (cashbackRulesQ.data ?? []).find((r) => r.id === id);
+    return cashbackRules.find((r) => r.id === id);
   };
   const itemCashbackZer = (item: CartItem) => {
     if (item.priceUnit !== "zer") return 0;
