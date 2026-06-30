@@ -21,6 +21,7 @@ import {
   useBusinessPackages,
   useCashbackRules,
 } from "@/hooks/use-zercash";
+import ZerIcon from "@/components/ZerIcon";
 import { useCheckout, type PaymentMethod } from "@/hooks/use-checkout";
 import { useInvoices, invoiceDownloadUrl } from "@/hooks/use-invoices";
 import { toast } from "sonner";
@@ -316,7 +317,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between pt-1">
                 <span className="font-bold text-sm text-foreground">Bi Tevahî</span>
                 <div className="text-right flex items-center gap-2">
-                  {cartZerTotal > 0 && <span className="font-extrabold text-sm text-primary">₮ {cartZerTotal.toLocaleString()}</span>}
+                  {cartZerTotal > 0 && <span className="font-extrabold text-sm text-primary inline-flex items-center gap-1"><ZerIcon className="w-3.5 h-3.5" /> {cartZerTotal.toLocaleString()}</span>}
                   {cartTotal > 0 && <span className="font-extrabold text-sm text-foreground">€{cartTotal.toFixed(2)}</span>}
                 </div>
               </div>
