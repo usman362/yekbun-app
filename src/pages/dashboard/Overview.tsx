@@ -309,7 +309,7 @@ export default function DashboardOverview() {
                     <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 font-medium">
                       <TrendingUp className="h-3 w-3" /> Cashback
                     </span>
-                    <span className="text-xs font-bold text-green-600 dark:text-green-400">−{Math.round(cashbackTotal).toLocaleString()} Zer</span>
+                    <span className="text-xs font-bold text-green-600 dark:text-green-400">+{Math.round(cashbackTotal).toLocaleString()} Zer</span>
                   </div>
                 </>
               )}
