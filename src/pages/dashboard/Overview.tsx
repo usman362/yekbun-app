@@ -333,12 +333,9 @@ export default function DashboardOverview() {
               <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
               <h3 className="font-bold text-xs text-muted-foreground uppercase tracking-wider">Awayê Dayinê</h3>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {[
-                { id: "balance", icon: Wallet, label: "Moza Min", desc: `₮ ${userProfile.zerBalance.toLocaleString()}`, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", selBorder: "border-amber-500/50", selBg: "bg-amber-500/10" },
-                { id: "store", icon: Store, label: "Di Dûkanê", desc: "Cash bide", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", selBorder: "border-orange-500/50", selBg: "bg-orange-500/10" },
-                { id: "bank", icon: Landmark, label: "Banka", desc: "IBAN / SEPA", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", selBorder: "border-blue-500/50", selBg: "bg-blue-500/10" },
-                { id: "paypal", icon: CreditCard, label: "PayPal", desc: "yekbun.app", color: "text-violet-500", bg: "bg-violet-500/10", border: "border-violet-500/20", selBorder: "border-violet-500/50", selBg: "bg-violet-500/10" },
+                { id: "balance", icon: Wallet, label: "Zercash", desc: `₮ ${userProfile.zerBalance.toLocaleString()} berdest`, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", selBorder: "border-amber-500/50", selBg: "bg-amber-500/10" },
               ].map((method) => {
                 const selected = paymentMethod === method.id;
                 return (
