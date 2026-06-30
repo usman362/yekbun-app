@@ -702,7 +702,7 @@ export default function LoginPage() {
                 >
                   <div className="h-11 w-11 rounded-xl overflow-hidden mb-2.5 mx-auto border border-white/10"
                     style={{ background: "linear-gradient(135deg, #f5c518, #f97316)" }}>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sivan_Perwer.jpg/220px-Sivan_Perwer.jpg" alt="" className="w-full h-full object-cover" />
+                    <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=120&q=80&fit=crop" alt="" className="w-full h-full object-cover" />
                   </div>
                   <p className="text-white font-bold text-xs text-center">Şivan Perwer</p>
                   <p className="text-white/40 text-[10px] text-center mb-2">Dengbêj</p>
