@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { useInactivityTimer } from "@/hooks/useInactivityTimer";
 import { AutoLogoutModal } from "@/components/AutoLogoutModal";
 
-const WARNING_SECONDS = 30;
+const WARNING_SECONDS = 10;
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -76,7 +76,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, [stopCountdown, navigate]);
 
   const { resetTimer } = useInactivityTimer({
-    timeoutMs: 15 * 60 * 1000,
+    timeoutMs: 30 * 1000,
     warningMs: WARNING_SECONDS * 1000,
     onWarning: startCountdown,
     onLogout: handleLogout,

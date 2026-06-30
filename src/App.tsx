@@ -43,7 +43,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ThemeProvider defaultTheme="dark" storageKey="yekbun-theme">
+  <ThemeProvider defaultTheme="light" storageKey="yekbun-theme">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
