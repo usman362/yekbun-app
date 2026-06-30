@@ -19,6 +19,7 @@ import {
   useStreamingUpgrades,
   useZerPackages,
   useBusinessPackages,
+  useCashbackRules,
 } from "@/hooks/use-zercash";
 import { useCheckout, type PaymentMethod } from "@/hooks/use-checkout";
 import { useInvoices, invoiceDownloadUrl } from "@/hooks/use-invoices";
@@ -145,6 +146,32 @@ export default function DashboardOverview() {
   const streamingUpgrades = useStreamingUpgrades();
   const zerPackages = useZerPackages();
   const businessPackages = useBusinessPackages();
+  const cashbackRulesQ = useCashbackRules();
+
+  // Mirror the backend's BuildsZercashCartLines cashback logic so the cart preview
+  // matches exactly what checkout will credit (fixed vs percent, min-purchase).
+  const cbRuleForType = (type: CartItem["type"]) => {
+    const id = ({ playlist: "playlist", stream: "streaming", plan: "upgrade", zer: "zer_package", business: "zer_package" } as Record<string, string>)[type];
+    return (cashbackRulesQ.data ?? []).find((r) => r.id === id);
+  };
+  const itemCashbackZer = (item: CartItem) => {
+    if (item.priceUnit !== "zer") return 0;
+    const amount = item.priceValue * item.qty;
+    const rule = cbRuleForType(item.type);
+    if (rule) {
+      if (amount < rule.min_purchase) return 0;
+      return rule.kind === "fixed" ? rule.value : (amount * rule.value) / 100;
+    }
+    return item.cashback ? (amount * item.cashback) / 100 : 0;
+  };
+  const itemCashbackLabel = (item: CartItem): string | null => {
+    const rule = cbRuleForType(item.type);
+    if (rule) {
+      if (rule.value <= 0) return null;
+      return rule.kind === "fixed" ? `${rule.value} Zer CB` : `${rule.value}% CB`;
+    }
+    return item.cashback ? `${item.cashback}% CB` : null;
+  };
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
@@ -165,10 +192,7 @@ export default function DashboardOverview() {
     if (item.priceUnit === "zer") return sum + item.priceValue;
     return sum;
   }, 0);
-  const cashbackTotal = cart.reduce((sum, item) => {
-    if (item.cashback && item.priceUnit === "zer") return sum + (item.priceValue * item.cashback) / 100;
-    return sum;
-  }, 0);
+  const cashbackTotal = cart.reduce((sum, item) => sum + itemCashbackZer(item), 0);
 
   const toggleAutoCharge = (id: string) =>
     setAutoCharge((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -242,9 +266,9 @@ export default function DashboardOverview() {
                     <p className="font-bold text-sm text-foreground truncate leading-tight">{item.name}</p>
                     <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                       <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold capitalize text-muted-foreground bg-secondary">{item.type}</span>
-                      {item.cashback && (
+                      {itemCashbackLabel(item) && (
                         <span className="text-[10px] rounded-full px-2 py-0.5 font-bold flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-500/10 border border-green-500/20">
-                          <TrendingUp className="h-2.5 w-2.5" />{item.cashback}% CB
+                          <TrendingUp className="h-2.5 w-2.5" />{itemCashbackLabel(item)}
                         </span>
                       )}
                     </div>
