@@ -648,6 +648,7 @@ export default function DashboardOverview() {
           <div className="grid sm:grid-cols-3 gap-5">
             {playlistUpgrades.map((pkg, i) => {
               const inCart = isInCart(pkg.id);
+              const owned = pkg.owned;
               const svgName = `${pkg.tier}_Playlist.svg`;
               return (
                 <motion.div key={pkg.id} {...fade(i)}>
@@ -680,21 +681,26 @@ export default function DashboardOverview() {
                     {/* Actions */}
                     <div className="px-4 pb-4 pt-2 flex flex-col gap-3 mt-auto">
                       <motion.button
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => addToCart({
+                        whileTap={{ scale: owned ? 1 : 0.97 }}
+                        disabled={owned}
+                        onClick={() => { if (owned) return; addToCart({
                           id: pkg.id, name: pkg.name, type: "playlist",
                           price: `${pkg.zerCost.toLocaleString()} Zer`,
                           priceValue: pkg.zerCost, priceUnit: "zer",
                           cashback: pkg.cashback, qty: 1,
-                        })}
+                        }); }}
                         className={cn(
                           "w-full h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200",
-                          inCart
-                            ? "bg-green-600 text-white shadow-md shadow-green-600/30"
-                            : "bg-green-500 text-white shadow-md shadow-green-500/25 hover:bg-green-600"
+                          owned
+                            ? "bg-muted text-muted-foreground cursor-default"
+                            : inCart
+                              ? "bg-green-600 text-white shadow-md shadow-green-600/30"
+                              : "bg-green-500 text-white shadow-md shadow-green-500/25 hover:bg-green-600"
                         )}
                       >
-                        {inCart ? <><Check className="h-4 w-4" /> Di Sepetê de</> : <><ShoppingCart className="h-4 w-4" /> Add To Cart</>}
+                        {owned
+                          ? <><Check className="h-4 w-4" /> Hatiye Kirîn</>
+                          : inCart ? <><Check className="h-4 w-4" /> Di Sepetê de</> : <><ShoppingCart className="h-4 w-4" /> Add To Cart</>}
                       </motion.button>
                       <div className="flex items-center justify-center gap-2 rounded-xl border border-border/50 bg-secondary/30 py-2 px-3">
                         <span className="text-xs text-muted-foreground font-medium">Auto Charge</span>

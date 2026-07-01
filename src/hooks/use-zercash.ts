@@ -65,6 +65,8 @@ interface BackendProduct {
   features?: string[];
   status?: string;
   sort_order?: number;
+  /** Playlist already unlocked by a past purchase (backend flag). */
+  owned?: boolean;
 }
 
 /**
@@ -135,8 +137,8 @@ export function usePlaylistUpgrades() {
   const { playlists: remote } = useZercashProductsBucketed();
 
   return useMemo(() => {
-    if (!remote || remote.length === 0) return mockPlaylistUpgrades;
-    return remote.map((p, i): typeof mockPlaylistUpgrades[number] => {
+    if (!remote || remote.length === 0) return mockPlaylistUpgrades.map((m) => ({ ...m, owned: false }));
+    return remote.map((p, i): typeof mockPlaylistUpgrades[number] & { owned: boolean } => {
       const fallback = mockPlaylistUpgrades[i % mockPlaylistUpgrades.length];
       // Derive tier from product name (e.g. "Bronze Playlist" → "Bronze").
       const tier = (p.name ?? "").split(" ")[0] || fallback.tier;
@@ -150,6 +152,8 @@ export function usePlaylistUpgrades() {
         cashback: num(p.cashback_percent, fallback.cashback),
         // Mark Silver as popular by default to match the existing UI accent.
         popular: tier.toLowerCase() === "silver" ? true : fallback.popular,
+        // Already unlocked by a past purchase → card shows an "Owned" state.
+        owned: !!p.owned,
       };
     });
   }, [remote]);
